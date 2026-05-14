@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Finder - OOP 방식</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 버전 표시 배지 */
+        .version-badge {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- 버전 표시 배지 -->
+    <div class="version-badge">OOP 방식 (Object-Oriented)</div>
+
+    <div class="container">
+        <!-- 헤더 -->
+        <header>
+            <h1>GitHub Finder</h1>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">객체 지향 프로그래밍 방식</p>
+        </header>
+
+        <!-- 검색 영역 -->
+        <div class="search-section">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="GitHub 사용자명 입력"
+                autocomplete="off"
+            >
+            <button id="searchBtn">🔍</button>
+        </div>
+
+        <!-- 에러 메시지 영역 -->
+        <div id="errorMessage" class="error hidden"></div>
+
+        <!-- 프로필 섹션 -->
+        <div id="profileSection" class="profile hidden">
+            <img id="avatar" src="" alt="프로필 이미지" class="avatar">
+            <div class="profile-info">
+                <h2 id="userName"></h2>
+                <p id="userBio"></p>
+            </div>
+        </div>
+
+        <!-- 통계 섹션 -->
+        <div id="statsSection" class="stats hidden">
+            <div class="stat-item">
+                <span class="stat-label">팔로워</span>
+                <span id="followers" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">팔로잉</span>
+                <span id="following" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">저장소</span>
+                <span id="repos" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <!-- 저장소 목록 섹션 -->
+        <div id="reposSection" class="repos-list hidden"></div>
+    </div>
+
+    <!-- OOP 방식 JavaScript -->
+    <script src="script-oop.js"></script>
+</body>
+</html>

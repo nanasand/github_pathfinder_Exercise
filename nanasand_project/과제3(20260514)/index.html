@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Finder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header>
+            <h1>GitHub Finder</h1>
+        </header>
+
+        <!-- 검색 영역 -->
+        <div class="search-section">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="GitHub 사용자명 입력"
+                autocomplete="off"
+            >
+            <button id="searchBtn">🔍</button>
+        </div>
+
+        <!-- 에러 메시지 영역 -->
+        <div id="errorMessage" class="error hidden"></div>
+
+        <!-- 프로필 섹션 -->
+        <div id="profileSection" class="profile hidden">
+            <img id="avatar" src="" alt="프로필 이미지" class="avatar">
+            <div class="profile-info">
+                <h2 id="userName"></h2>
+                <p id="userBio"></p>
+            </div>
+        </div>
+
+        <!-- 통계 섹션 -->
+        <div id="statsSection" class="stats hidden">
+            <div class="stat-item">
+                <span class="stat-label">팔로워</span>
+                <span id="followers" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">팔로잉</span>
+                <span id="following" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">저장소</span>
+                <span id="repos" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <!-- 저장소 목록 섹션 -->
+        <div id="reposSection" class="repos-list hidden"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

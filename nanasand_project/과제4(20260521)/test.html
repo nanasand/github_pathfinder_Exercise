@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹 스프레드시트 자동 테스트</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .test-panel {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .spreadsheet-panel {
+            flex: 2;
+        }
+
+        .test-result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+
+        .test-result.pass {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .test-result.fail {
+            background-color: #ffebee;
+            border-color: #f44336;
+        }
+
+        .test-result.pending {
+            background-color: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .test-detail {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        #runTests {
+            padding: 12px 24px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        #runTests:hover {
+            background-color: #1976D2;
+        }
+
+        #runTests:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .summary.all-pass {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .summary.has-fail {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <!-- 테스트 패널 -->
+    <div class="test-panel">
+        <h1>🧪 자동 테스트</h1>
+        <button id="runTests">▶️ 테스트 실행</button>
+        
+        <div id="testResults">
+            <div class="test-result pending">
+                <div class="test-title">⏳ 테스트 1: 하이라이트 검증</div>
+                <div class="test-detail">셀 클릭 시 행/열 헤더가 하늘색으로 변경되는지 확인</div>
+            </div>
+            
+            <div class="test-result pending">
+                <div class="test-title">⏳ 테스트 2: 데이터 입력 검증</div>
+                <div class="test-detail">셀에 값 입력 시 data 배열에 동기화되는지 확인</div>
+            </div>
+            
+            <div class="test-result pending">
+                <div class="test-title">⏳ 테스트 3: CSV 생성 검증</div>
+                <div class="test-detail">CSV 형식이 올바르게 생성되는지 확인</div>
+            </div>
+            
+            <div class="test-result pending">
+                <div class="test-title">⏳ 테스트 4: 경계값 확인</div>
+                <div class="test-detail">모서리 셀(A1, J10 등)에서 정상 작동하는지 확인</div>
+            </div>
+        </div>
+
+        <div id="summary" class="summary" style="display: none;"></div>
+    </div>
+
+    <!-- 스프레드시트 패널 -->
+    <div class="spreadsheet-panel">
+        <div class="container">
+            <h1>📊 웹 스프레드시트</h1>
+            
+            <div class="controls">
+                <button id="exportBtn">📥 CSV로 내보내기</button>
+            </div>
+
+            <div class="table-container">
+                <table id="spreadsheet">
+                    <!-- JavaScript로 동적 생성 -->
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // 테스트 결과 저장
+        const testResults = [];
+
+        // 테스트 유틸리티 함수
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function updateTestResult(index, passed, message) {
+            const resultDiv = document.querySelectorAll('.test-result')[index];
+            resultDiv.className = `test-result ${passed ? 'pass' : 'fail'}`;
+            
+            const title = resultDiv.querySelector('.test-title');
+            title.textContent = `${passed ? '✅' : '❌'} ${title.textContent.substring(2)}`;
+            
+            const detail = resultDiv.querySelector('.test-detail');
+            detail.textContent = message;
+
+            testResults[index] = passed;
+        }
+
+        // 테스트 1: 하이라이트 검증
+        async function test1_Highlight() {
+            console.log('🧪 테스트 1 시작: 하이라이트 검증');
+            
+            try {
+                // 테스트할 셀 선택 (B3)
+                const testCell = document.querySelector('td[data-row="2"][data-col="1"]');
+                if (!testCell) {
+                    throw new Error('테스트 셀을 찾을 수 없습니다');
+                }
+
+                // 셀 클릭 시뮬레이션
+                testCell.click();
+                await sleep(100);
+
+                // 행 헤더 확인
+                const rowHeader = document.querySelector('th.row-header[data-row="2"]');
+                const rowHasActive = rowHeader && rowHeader.classList.contains('active');
+                
+                // 열 헤더 확인
+                const colHeader = document.querySelector('th.col-header[data-col="1"]');
+                const colHasActive = colHeader && colHeader.classList.contains('active');
+
+                // 하늘색 확인
+                const rowBgColor = rowHeader ? window.getComputedStyle(rowHeader).backgroundColor : '';
+                const colBgColor = colHeader ? window.getComputedStyle(colHeader).backgroundColor : '';
+                
+                // RGB(135, 206, 235) = #87CEEB (하늘색)
+                const isSkyBlue = (color) => {
+                    return color === 'rgb(135, 206, 235)' || color === '#87CEEB';
+                };
+
+                const passed = rowHasActive && colHasActive && 
+                              isSkyBlue(rowBgColor) && isSkyBlue(colBgColor);
+
+                const message = passed 
+                    ? '✓ B3 셀 클릭 시 행 3과 열 B 헤더가 하늘색으로 변경됨'
+                    : `✗ 실패 - 행 active: ${rowHasActive}, 열 active: ${colHasActive}, 행 색상: ${rowBgColor}, 열 색상: ${colBgColor}`;
+
+                updateTestResult(0, passed, message);
+                console.log(message);
+                return passed;
+
+            } catch (error) {
+                updateTestResult(0, false, `✗ 오류: ${error.message}`);
+                console.error('테스트 1 오류:', error);
+                return false;
+            }
+        }
+
+        // 테스트 2: 데이터 입력 검증
+        async function test2_DataInput() {
+            console.log('🧪 테스트 2 시작: 데이터 입력 검증');
+            
+            try {
+                // 테스트 데이터
+                const testData = [
+                    { row: 0, col: 0, value: '100' },
+                    { row: 1, col: 2, value: '200' },
+                    { row: 3, col: 4, value: '300' },
+                    { row: 5, col: 7, value: '400' }
+                ];
+
+                let allPassed = true;
+                const results = [];
+
+                for (const test of testData) {
+                    const cell = document.querySelector(`td[data-row="${test.row}"][data-col="${test.col}"]`);
+                    if (!cell) {
+                        allPassed = false;
+                        results.push(`셀 [${test.row}][${test.col}] 찾기 실패`);
+                        continue;
+                    }
+
+                    // 값 입력 시뮬레이션
+                    cell.textContent = test.value;
+                    cell.dispatchEvent(new Event('input', { bubbles: true }));
+                    await sleep(50);
+
+                    // data 배열 확인
+                    const actualValue = data[test.row][test.col];
+                    if (actualValue === test.value) {
+                        results.push(`✓ [${test.row}][${test.col}] = "${test.value}"`);
+                    } else {
+                        allPassed = false;
+                        results.push(`✗ [${test.row}][${test.col}] 예상: "${test.value}", 실제: "${actualValue}"`);
+                    }
+                }
+
+                const message = allPassed 
+                    ? `✓ 4개 셀 모두 data 배열에 정상 동기화됨\n${results.join(', ')}`
+                    : `✗ 일부 실패\n${results.join('\n')}`;
+
+                updateTestResult(1, allPassed, message);
+                console.log(message);
+                return allPassed;
+
+            } catch (error) {
+                updateTestResult(1, false, `✗ 오류: ${error.message}`);
+                console.error('테스트 2 오류:', error);
+                return false;
+            }
+        }
+
+        // 테스트 3: CSV 생성 검증
+        async function test3_CSVGeneration() {
+            console.log('🧪 테스트 3 시작: CSV 생성 검증');
+            
+            try {
+                // 테스트 데이터 설정 (이미 테스트 2에서 입력됨)
+                // data[0][0] = '100', data[1][2] = '200', data[3][4] = '300', data[5][7] = '400'
+
+                // CSV 생성 로직 테스트 (실제 다운로드는 하지 않음)
+                const csvContent = data.map(row => {
+                    return row.map(cell => {
+                        const cellValue = String(cell || '');
+                        if (cellValue.includes(',') || cellValue.includes('"') || cellValue.includes('\n')) {
+                            return `"${cellValue.replace(/"/g, '""')}"`;
+                        }
+                        return cellValue;
+                    }).join(',');
+                }).join('\n');
+
+                // 검증
+                const lines = csvContent.split('\n');
+                const checks = [];
+                let allPassed = true;
+
+                // 첫 번째 행: 100,,,,,,,,, (100 다음 9개 빈 셀)
+                const line0 = lines[0].split(',');
+                if (line0[0] === '100' && line0.length === 10) {
+                    checks.push('✓ 1행: "100" 포함');
+                } else {
+                    allPassed = false;
+                    checks.push(`✗ 1행 실패: ${lines[0]}`);
+                }
+
+                // 두 번째 행: ,,200,,,,,,, (200이 3번째 위치)
+                const line1 = lines[1].split(',');
+                if (line1[2] === '200' && line1.length === 10) {
+                    checks.push('✓ 2행: "200" 3번째 위치');
+                } else {
+                    allPassed = false;
+                    checks.push(`✗ 2행 실패: ${lines[1]}`);
+                }
+
+                // 쉼표 구분 확인
+                const hasCommas = csvContent.includes(',');
+                if (hasCommas) {
+                    checks.push('✓ 쉼표 구분자 존재');
+                } else {
+                    allPassed = false;
+                    checks.push('✗ 쉼표 구분자 없음');
+                }
+
+                // 총 행 수 확인 (10행)
+                if (lines.length === 10) {
+                    checks.push('✓ 총 10행 생성');
+                } else {
+                    allPassed = false;
+                    checks.push(`✗ 행 수 오류: ${lines.length}행`);
+                }
+
+                const message = allPassed 
+                    ? `✓ CSV 형식 정상\n${checks.join('\n')}`
+                    : `✗ CSV 형식 오류\n${checks.join('\n')}`;
+
+                updateTestResult(2, allPassed, message);
+                console.log(message);
+                console.log('생성된 CSV (첫 3행):\n' + lines.slice(0, 3).join('\n'));
+                return allPassed;
+
+            } catch (error) {
+                updateTestResult(2, false, `✗ 오류: ${error.message}`);
+                console.error('테스트 3 오류:', error);
+                return false;
+            }
+        }
+
+        // 테스트 4: 경계값 확인
+        async function test4_BoundaryValues() {
+            console.log('🧪 테스트 4 시작: 경계값 확인');
+            
+            try {
+                const boundaryTests = [
+                    { row: 0, col: 0, name: 'A1 (좌상단)' },
+                    { row: 0, col: 9, name: 'J1 (우상단)' },
+                    { row: 9, col: 0, name: 'A10 (좌하단)' },
+                    { row: 9, col: 9, name: 'J10 (우하단)' }
+                ];
+
+                let allPassed = true;
+                const results = [];
+
+                for (const test of boundaryTests) {
+                    const cell = document.querySelector(`td[data-row="${test.row}"][data-col="${test.col}"]`);
+                    if (!cell) {
+                        allPassed = false;
+                        results.push(`✗ ${test.name} 셀 찾기 실패`);
+                        continue;
+                    }
+
+                    // 클릭 시뮬레이션
+                    cell.click();
+                    await sleep(50);
+
+                    // 하이라이트 확인
+                    const rowHeader = document.querySelector(`th.row-header[data-row="${test.row}"]`);
+                    const colHeader = document.querySelector(`th.col-header[data-col="${test.col}"]`);
+                    
+                    const rowActive = rowHeader && rowHeader.classList.contains('active');
+                    const colActive = colHeader && colHeader.classList.contains('active');
+
+                    if (rowActive && colActive) {
+                        results.push(`✓ ${test.name} 정상`);
+                    } else {
+                        allPassed = false;
+                        results.push(`✗ ${test.name} 실패 (행: ${rowActive}, 열: ${colActive})`);
+                    }
+                }
+
+                const message = allPassed 
+                    ? `✓ 모든 경계값 셀 정상 작동\n${results.join('\n')}`
+                    : `✗ 일부 경계값 실패\n${results.join('\n')}`;
+
+                updateTestResult(3, allPassed, message);
+                console.log(message);
+                return allPassed;
+
+            } catch (error) {
+                updateTestResult(3, false, `✗ 오류: ${error.message}`);
+                console.error('테스트 4 오류:', error);
+                return false;
+            }
+        }
+
+        // 모든 테스트 실행
+        async function runAllTests() {
+            console.log('🚀 자동 테스트 시작...\n');
+            
+            const runButton = document.getElementById('runTests');
+            runButton.disabled = true;
+            runButton.textContent = '⏳ 테스트 실행 중...';
+
+            // 초기화
+            testResults.length = 0;
+
+            // 순차 실행
+            await test1_Highlight();
+            await sleep(300);
+            
+            await test2_DataInput();
+            await sleep(300);
+            
+            await test3_CSVGeneration();
+            await sleep(300);
+            
+            await test4_BoundaryValues();
+            await sleep(300);
+
+            // 결과 요약
+            const passCount = testResults.filter(r => r).length;
+            const totalCount = testResults.length;
+            const allPassed = passCount === totalCount;
+
+            const summary = document.getElementById('summary');
+            summary.style.display = 'block';
+            summary.className = `summary ${allPassed ? 'all-pass' : 'has-fail'}`;
+            summary.textContent = allPassed 
+                ? `🎉 모든 테스트 통과! (${passCount}/${totalCount})`
+                : `⚠️ 일부 테스트 실패 (${passCount}/${totalCount} 통과)`;
+
+            console.log(`\n📊 테스트 완료: ${passCount}/${totalCount} 통과`);
+            
+            runButton.disabled = false;
+            runButton.textContent = '🔄 테스트 재실행';
+        }
+
+        // 버튼 이벤트
+        document.getElementById('runTests').addEventListener('click', runAllTests);
+
+        // 페이지 로드 후 자동 실행
+        window.addEventListener('load', () => {
+            console.log('✅ 페이지 로드 완료. 테스트 준비됨.');
+            console.log('💡 "테스트 실행" 버튼을 클릭하거나 3초 후 자동 실행됩니다.');
+            
+            // 3초 후 자동 실행
+            setTimeout(() => {
+                runAllTests();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

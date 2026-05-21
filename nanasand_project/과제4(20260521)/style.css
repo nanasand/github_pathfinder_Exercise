@@ -1,0 +1,140 @@
+/* ========================================
+   Step 1: CSS 구조 설계
+   ======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* 버튼 스타일 */
+.controls {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.controls button {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#exportBtn {
+    background-color: #4CAF50;
+}
+
+#exportBtn:hover {
+    background-color: #45a049;
+}
+
+#clearBtn {
+    background-color: #f44336;
+}
+
+#clearBtn:hover {
+    background-color: #da190b;
+}
+
+/* 테이블 컨테이너 - 스크롤 가능하도록 */
+.table-container {
+    overflow: auto;
+    max-height: 600px;
+}
+
+/* 테이블 기본 스타일 */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+}
+
+/* 헤더 셀 스타일 (행/열 번호) */
+th {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    color: #555;
+    min-width: 80px;
+    position: sticky;
+    user-select: none; /* 텍스트 선택 방지 */
+}
+
+/* 첫 번째 열 헤더는 왼쪽에 고정 */
+th:first-child {
+    left: 0;
+    z-index: 2;
+}
+
+/* 첫 번째 행 헤더는 위에 고정 */
+thead th {
+    top: 0;
+    z-index: 1;
+}
+
+/* 좌측 상단 모서리 셀 */
+thead th:first-child {
+    z-index: 3;
+}
+
+/* 데이터 셀 스타일 */
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    min-width: 80px;
+    height: 35px;
+    background-color: white;
+    cursor: cell;
+}
+
+/* 셀 호버 효과 */
+td:hover {
+    background-color: #f9f9f9;
+}
+
+/* 셀 포커스 시 스타일 */
+td:focus {
+    outline: 2px solid #4CAF50;
+    outline-offset: -2px;
+    background-color: white;
+}
+
+/* active 클래스 - 선택된 행/열 헤더 하이라이트 */
+th.active {
+    background-color: #87CEEB; /* 하늘색 */
+    font-weight: bold;
+    color: #000;
+}
+
+/* 선택된 셀 표시 */
+td.selected {
+    background-color: #e3f2fd;
+    border: 2px solid #2196F3;
+}
